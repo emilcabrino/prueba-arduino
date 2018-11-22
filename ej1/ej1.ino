@@ -39,6 +39,8 @@ ISR (USART_RX_vect){
   }
 }
 
+FILE uart_io = FDEV_SETUP_STREAM(_putc, _getc, _FDEV_SETUP_RW);
+
 //--------------------------------------------------------
 // INTERPRETE DE COMANDO
 void interprete(void){
