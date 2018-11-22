@@ -15,9 +15,52 @@ uint16_t tiempop2;
 unsigned long tiempo_verif;
 unsigned long interval = 2000000;
 unsigned long MAX_TIME = 5000000;
+
+// TENES QUE HACER EL INCLUDE DEL ARCHIVO EN 
+// https://github.com/FernandezGFG/MyEP-2018/blob/master/UART-ej1/ATMEGA328P/UART.c
+
+//    Rutina de servicio de interrupción por recepción de datos en UART
+uint8_t indcom;
+char comando[10];
+
+ISR (USART_RX_vect){
+  char dato=getc();
+  switch (dato) {
+    case ':':
+      indcom=0;
+      break;
+    case '\r':
+      comando[indcom]=0;
+      interprete();
+      break;
+    default:
+      comando[indcom++]=dato;
+      break;
+  }
+}
+
+//--------------------------------------------------------
+// INTERPRETE DE COMANDO
+void interprete(void){
+  switch (comando[0]) {
+    case '':
+	  if (comando[1]){
+      // Aca le darías el valor a la velocidad máxima
+      // VMAX = atoi(&comando[1]);
+		  // printf("V: %d\n", VMAX);
+	  } else {
+		  printf(":ERR\n");
+	  }
+      break;
+
+    default:
+      printf(":ERR\n");
+      break;
+  }
+}
   
 void setup() {
-  Serial.begin(9600);    //iniciar puerto serie
+  //Serial.begin(9600);    //iniciar puerto serie
   pinMode(ledPIN_G , OUTPUT);  //definir pin como salida
   pinMode(ledPIN_Y , OUTPUT);  //definir pin como salida
   pinMode(ledPIN_R , OUTPUT);  //definir pin como salida
@@ -27,6 +70,13 @@ void setup() {
   Timer1.attachInterrupt(ISR_Blink); // Activa la interrupcion y la asocia a ISR_Blink
   attachInterrupt(digitalPinToInterrupt(p1), ISR_P1, RISING);
   attachInterrupt(digitalPinToInterrupt(p2), ISR_P2, RISING);
+  
+  UART_init(9600);
+  stdout = stdin = &uart_io;
+  indcom = 0;
+  
+  // Esto no se si va
+  sei();
  
 }
  
